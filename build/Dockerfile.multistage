@@ -1,20 +1,27 @@
-FROM openshift/origin-release:rhel-8-golang-1.12
+FROM --platform=$BUILDPLATFORM image.cestc.cn/ccos-ceasphere/golang:1.20 as builder
+ENV GOPROXY=https://goproxy.cn,direct
+WORKDIR /workspace
+COPY go.mod go.mod
+COPY go.sum go.sum
 
-RUN mkdir -p /go/src/github.com/embercsi/ember-csi-operator/
-RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+COPY vendor/ vendor/
 
-COPY . /go/src/github.com/embercsi/ember-csi-operator/
-WORKDIR /go/src/github.com/embercsi/ember-csi-operator/
+COPY build/ build/
+COPY cmd/ cmd/
+COPY controllers/ controllers/
 
-RUN make dep
-RUN make compile
+ARG TARGETARCH
+RUN GOARCH=$TARGETARCH CGO_ENABLED=0 go build --ldflags '-extldflags "-static"' -gcflags all=-trimpath=. --asmflags all=-trimpath=. -tags custom -o ember-csi-operator ./cmd/manager/main.go
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+ARG TARGETPLATFORM
 
-RUN microdnf update -y && microdnf clean all && rm -rf /var/cache/yum
+FROM --platform=$TARGETPLATFORM image.cestc.cn/baseos/centos:8.4.2105-0.0.1
 
 RUN mkdir /etc/ember-csi-operator && chmod 755 /etc/ember-csi-operator
-ADD build/config.yaml /etc/ember-csi-operator/config.yaml
+
+# install operator binary
+COPY --from=builder /workspace/ember-csi-operator /usr/local/bin/ember-csi-operator
+COPY --from=builder /workspace/build/config.yaml /etc/ember-csi-operator/config.yaml
+
 USER nobody
 
-COPY --from=0 /go/src/github.com/embercsi/ember-csi-operator/build/ember-csi-operator /usr/local/bin/ember-csi-operator
