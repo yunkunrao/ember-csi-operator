@@ -1,0 +1,33 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - ember-csi.io
+  resources:
+  - emberstoragebackends
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ember-csi.io
+  resources:
+  - emberstoragebackends/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ember-csi.io
+  resources:
+  - emberstoragebackends/status
+  verbs:
+  - get
+  - patch
+  - update
