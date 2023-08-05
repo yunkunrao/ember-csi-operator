@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"io/ember-csi-manager/controllers"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -32,7 +33,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	embercsiv1alpha1 "io/ember-csi-manager/api/v1alpha1"
-	"io/ember-csi-manager/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -52,11 +52,15 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var configFile string
+
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
+	flag.StringVar(&configFile, "config", "", "Config file. (Optional)")
+
 	opts := zap.Options{
 		Development: true,
 	}
@@ -89,11 +93,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.EmberStorageBackendReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "EmberStorageBackend")
+	err = controllers.AddToManager(mgr)
+	if err != nil {
+		setupLog.Error(err, "unable to create controllers")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
