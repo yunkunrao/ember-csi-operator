@@ -1,0 +1,12 @@
+apiVersion: ember-csi.io/v1alpha1
+kind: EmberStorageBackend
+metadata:
+  labels:
+    app.kubernetes.io/name: emberstoragebackend
+    app.kubernetes.io/instance: emberstoragebackend-sample
+    app.kubernetes.io/part-of: ember-csi-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: ember-csi-operator
+  name: emberstoragebackend-sample
+spec:
+  # TODO(user): Add fields here

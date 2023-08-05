@@ -1,0 +1,31 @@
+# permissions for end users to edit emberstoragebackends.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: emberstoragebackend-editor-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: ember-csi-operator
+    app.kubernetes.io/part-of: ember-csi-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: emberstoragebackend-editor-role
+rules:
+- apiGroups:
+  - ember-csi.io
+  resources:
+  - emberstoragebackends
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ember-csi.io
+  resources:
+  - emberstoragebackends/status
+  verbs:
+  - get
