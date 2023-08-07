@@ -1,62 +1,97 @@
----
-apiVersion: apiextensions.k8s.io/v1beta1
+apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: embercsis.ember-csi.io
+  name: emberstoragebackends.ember-csi.io
   namespace: ember-csi
 spec:
   group: ember-csi.io
   names:
     kind: EmberStorageBackend
     listKind: EmberStorageBackendList
-    plural: embercsis
-    singular: embercsi
+    plural: emberstoragebackends
+    singular: emberstoragebackend
   scope: Namespaced
-  validation:
-    openAPIV3Schema:
-      description: EmberStorageBackend is the Schema for the embercsis API
-      properties:
-        spec:
-          description: EmberStorageBackendSpec defines the desired state of EmberStorageBackend
+  versions:
+    - name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: EmberStorageBackend is the Schema for the embercsis API
           properties:
-            config:
-              description: Configuration settings for Ember and Storage Backend
+            spec:
+              description: EmberStorageBackendSpec defines the desired state of EmberStorageBackend
               properties:
-                envVars:
+                config:
+                  description: Configuration settings for Ember and Storage Backend
                   properties:
-                    CSI_MODE:
-                      type: string
-                    X_CSI_BACKEND_CONFIG:
+                    envVars:
+                      properties:
+                        CSI_MODE:
+                          type: string
+                        X_CSI_BACKEND_CONFIG:
+                          description: X_CSI_BACKEND_CONFIG
+                          type: object
+                          properties:
+                            volume_driver:
+                              type: string
+                            sds_xms_endpoints:
+                              type: string
+                            sds_auth_name:
+                              type: string
+                            sds_auth_password:
+                              type: string
+                            sds_auth_token:
+                              type: string
+                            sds_pool_name:
+                              type: string
+                            sds_target_ip_addresses:
+                              type: string
+                            driver:
+                              type: string
+                            target_helper:
+                              type: string
+                            target_ip_address:
+                              type: string
+                            volume_group:
+                              type: string
+                            name:
+                              type: string
+                        X_CSI_EMBER_CONFIG:
+                          description: X_CSI_EMBER_CONFIG
+                          type: object
+                          properties:
+                            debug:
+                              type: boolean
+                            plugin_name:
+                              type: string
+                        X_CSI_PERSISTENCE_CONFIG:
+                          type: object
+                      required:
+                        - X_CSI_BACKEND_CONFIG
+                        - X_CSI_EMBER_CONFIG
                       type: object
-                    X_CSI_EMBER_CONFIG:
-                      type: object
-                    X_CSI_PERSISTENCE_CONFIG:
+                    sysFiles:
+                      properties:
+                        name:
+                          type: string
+                      required:
+                        - name
                       type: object
                   required:
-                  - X_CSI_BACKEND_CONFIG
-                  - X_CSI_EMBER_CONFIG
+                    - envVars
                   type: object
-                sysFiles:
-                  properties:
-                    name:
-                      type: string
-                  required:
-                  - name
-                  type: object
+              type: object
+            status:
+              description: EmberStorageBackendStatus defines the observed state of EmberStorageBackend
+              properties:
+                version:
+                  description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                    of cluster Important: Run "operator-sdk generate k8s" to regenerate
+                    code after modifying this file'
+                  type: string
               required:
-              - envVars
+                - version
               type: object
           type: object
-        status:
-          description: EmberStorageBackendStatus defines the observed state of EmberStorageBackend
-          properties:
-            version:
-              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                of cluster Important: Run "operator-sdk generate k8s" to regenerate
-                code after modifying this file'
-              type: string
-          required:
-          - version
-          type: object
-      type: object
-  version: v1alpha1
+      served: true
+      storage: true
+      subresources:
