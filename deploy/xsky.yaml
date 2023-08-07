@@ -1,0 +1,20 @@
+apiVersion: ember-csi.io/v1alpha1
+kind: EmberStorageBackend
+metadata:
+  name: xsky
+  namespace: ember-csi
+spec:
+  config:
+    envVars:
+      X_CSI_EMBER_CONFIG:
+        debug: false
+        plugin_name: xsky
+      X_CSI_BACKEND_CONFIG:
+        volume_driver: cinder.volume.drivers.xsky.iscsi_driver.SdsISCSIDriver
+        sds_xms_endpoints: 10.253.109.236,10.253.109.237,10.253.109.238
+        sds_auth_name: admin
+        sds_auth_password: Admin@123
+        sds_auth_token: 019afed6ed4e4d67b50c79489fe65383
+        sds_pool_name: pool-cb3fa05e7353407592eda3a2aec0761c
+        sds_target_ip_addresses: 10.253.100.203,10.253.100.204,10.253.100.205
+        name: xsky

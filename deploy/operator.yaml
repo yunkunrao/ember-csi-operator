@@ -1,3 +1,31 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    version: 1.0
+    sidecars:
+      # Defult works between K8s-1.14/OCP-4.2 and K8s-1.16/OCP-4.3, both included
+      default:
+        X_CSI_SPEC_VERSION: v1.0
+        external-attacher: quay.io/k8scsi/csi-attacher:v2.2.0
+        external-provisioner: quay.io/k8scsi/csi-provisioner:v1.6.0
+        node-driver-registrar: quay.io/k8scsi/csi-node-driver-registrar:v1.2.0
+        external-snapshotter: quay.io/k8scsi/csi-snapshotter:v1.2.2
+
+      # k8s 1.22
+      ocp-4.9:
+        X_CSI_SPEC_VERSION: v1.1
+        external-attacher: image.cestc.cn/ccos-ceasphere/google_containers/csi-attacher:v3.3.0
+        external-provisioner: image.cestc.cn/ccos-ceasphere/k8scsi/csi-provisioner:v2.1.2
+        node-driver-registrar: image.cestc.cn/ccos-ceasphere/google_containers/csi-node-driver-registrar:v2.3.0
+        external-snapshotter: image.cestc.cn/ccos-ceasphere/k8scsi/csi-snapshotter:v4.0.0
+        external-resizer: image.cestc.cn/ccos-ceasphere/k8scsi/csi-resizer:v0.5.0
+
+    drivers:
+      default: image.cestc.cn/ccos-ceasphere/embercsi/ember-csi:master
+kind: ConfigMap
+metadata:
+  name: ember-config
+  namespace: ember-csi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -18,13 +46,19 @@ spec:
       terminationGracePeriodSeconds: 120
       containers:
         - name: ember-csi-operator
-          image: docker.io/embercsi/ember-csi-operator:latest
+          image: image.cestc.cn/ccos-ceasphere/ember-csi-operator:latest
+          volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config.yaml
+            subPath: config.yaml
           ports:
           - containerPort: 60000
             name: metrics
           command:
           - ember-csi-operator
-          args: ["-v=3"]
+          args:
+            - --v=5
+            - --config=/etc/config.yaml
           imagePullPolicy: Always
           readinessProbe:
             exec:
@@ -37,7 +71,7 @@ spec:
           env:
               # currently supported: default, ocp-3.10, ocp-3.11, k8s-v1.10, k8s-v1.11, k8s-v1.12, k8s-v1.13, k8s-v1.14
             - name: X_EMBER_OPERATOR_CLUSTER
-              value: default
+              value: ocp-4.9
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -48,4 +82,8 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "ember-csi-operator"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ember-config
 
