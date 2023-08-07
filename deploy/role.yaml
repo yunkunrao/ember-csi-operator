@@ -104,19 +104,23 @@ rules:
   - get
   - watch
   - update
+  - patch
 - apiGroups:
   - ""
   resources:
   - persistentvolumeclaims
+  - persistentvolumeclaims/status
   verbs:
   - get 
   - list 
   - watch 
   - update
+  - patch
 - apiGroups:
   - storage.k8s.io
   resources:
   - volumeattachments
+  - volumeattachments/status
   verbs:
   - get
   - list
@@ -124,6 +128,7 @@ rules:
   - update
   - delete
   - create
+  - patch
 - apiGroups:
   - storage.k8s.io
   resources:
@@ -147,6 +152,7 @@ rules:
   - watch
   - update
   - delete
+  - patch
 - apiGroups: 
   - snapshot.storage.k8s.io
   resources: 
@@ -162,6 +168,7 @@ rules:
   - snapshot.storage.k8s.io
   resources: 
   - volumesnapshotcontents
+  - volumesnapshotcontents/status
   verbs:
   - create
   - get
