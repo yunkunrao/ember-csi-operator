@@ -31,6 +31,8 @@ spec:
                           description: X_CSI_BACKEND_CONFIG
                           type: object
                           properties:
+                            multipath:
+                              type: boolean
                             volume_driver:
                               type: string
                             sds_xms_endpoints:

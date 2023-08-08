@@ -10,6 +10,7 @@ spec:
         debug: false
         plugin_name: xsky
       X_CSI_BACKEND_CONFIG:
+        multipath: true
         volume_driver: cinder.volume.drivers.xsky.iscsi_driver.SdsISCSIDriver
         sds_xms_endpoints: 10.253.109.236,10.253.109.237,10.253.109.238
         sds_auth_name: admin
